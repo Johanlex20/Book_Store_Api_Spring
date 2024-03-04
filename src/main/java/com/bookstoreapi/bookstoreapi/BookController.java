@@ -40,7 +40,7 @@ public class BookController {
     }
 
     @PutMapping(value = "/{id}")
-   public ResponseEntity<?> update(@PathVariable( value = "id") Integer id, @RequestBody Book bookForm) {
+    public ResponseEntity<?> update(@PathVariable( value = "id") Integer id, @RequestBody Book bookForm) {
 
         Book bookFromDb = bookRepository
                 .findById(id)

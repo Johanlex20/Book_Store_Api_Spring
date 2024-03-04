@@ -1,9 +1,13 @@
 package com.bookstoreapi.bookstoreapi;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -33,14 +37,35 @@ public class BookController {
         }
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
+    //@ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public Book create(@RequestBody Book book) {
-        return bookRepository.save(book);
+    public ResponseEntity<Book> create(@RequestBody Book book) {
+
+        // crear un unico identificador "slug"
+        boolean slugExists = bookRepository.existsBySlug(book.getSlug());
+
+        if (slugExists){
+            return ResponseEntity.badRequest().build();
+        }
+
+        book.setCreatedAt(LocalDateTime.now());
+        bookRepository.save(book);
+
+        return ResponseEntity
+                .created(URI.create("http://todotic.pe"))
+                .body(book);
+
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@PathVariable( value = "id") Integer id, @RequestBody Book bookForm) {
+
+        // crear un unico identificador "slug" con el findBySlugAndIdnot verifica todos los Slug menos el del id
+        boolean slugExists = bookRepository.existsBySlugAndIdNot(bookForm.getSlug(), id);
+
+        if (slugExists){
+            return ResponseEntity.badRequest().build();
+        }
 
         Book bookFromDb = bookRepository
                 .findById(id)
@@ -52,6 +77,11 @@ public class BookController {
 
         bookFromDb.setTitle(bookForm.getTitle());
         bookFromDb.setPrice(bookForm.getPrice());
+        bookFromDb.setSlug(bookForm.getSlug());
+        bookFromDb.setDesc(bookForm.getDesc());
+        bookFromDb.setCoverPath(bookForm.getCoverPath());
+        bookFromDb.setFilePath(bookForm.getFilePath());
+        bookFromDb.setUpdatedAt(LocalDateTime.now());
 
         bookRepository.save(bookFromDb);
 

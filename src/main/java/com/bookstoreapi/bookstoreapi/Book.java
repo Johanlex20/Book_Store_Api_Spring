@@ -1,16 +1,12 @@
 package com.bookstoreapi.bookstoreapi;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-
+@Data
 public class Book {
 
     @Id
@@ -18,8 +14,21 @@ public class Book {
     private Integer id;
 
     private String title;
+
+    private String slug; // identifique un solo recurso
+
+    @Column(name = "description")
+    private String desc;
+
     private Float price;
 
+    private String coverPath;  // ruta donde se almacena la imagen
+
+    private String filePath;    // ruta donde se almacena el pdf o archivos
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
 
 }

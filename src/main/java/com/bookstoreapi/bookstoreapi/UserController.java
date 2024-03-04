@@ -62,7 +62,7 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
         userRepository.delete(userDelete);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
 
     }
 

@@ -70,7 +70,7 @@ public class BookController {
         }
 
         bookRepository.delete(bookFromDb);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
     }
 
 }

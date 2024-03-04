@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
-@Service
+@Service//("filesystem")
 public class FileSystemStorageService implements StorageService {
 
     private final static  String STORAGE_LOCATION = "mediafile";
@@ -36,7 +36,7 @@ public class FileSystemStorageService implements StorageService {
     public String store(MultipartFile file) {
 
         String originalFilename = file.getOriginalFilename();
-        String filename = UUID.randomUUID() + StringUtils.getFilenameExtension(originalFilename);
+        String filename = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(originalFilename);
 
         if (file.isEmpty()) {
             throw new RuntimeException("Failed to store empty file " + filename);

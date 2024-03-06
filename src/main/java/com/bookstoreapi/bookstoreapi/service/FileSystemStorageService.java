@@ -1,4 +1,4 @@
-package com.bookstoreapi.bookstoreapi;
+package com.bookstoreapi.bookstoreapi.service;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.Resource;

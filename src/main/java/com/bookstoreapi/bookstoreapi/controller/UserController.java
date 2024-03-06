@@ -1,5 +1,7 @@
-package com.bookstoreapi.bookstoreapi;
+package com.bookstoreapi.bookstoreapi.controller;
 
+import com.bookstoreapi.bookstoreapi.domain.User;
+import com.bookstoreapi.bookstoreapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

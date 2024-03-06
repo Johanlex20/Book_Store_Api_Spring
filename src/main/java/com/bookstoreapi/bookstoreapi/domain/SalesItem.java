@@ -1,4 +1,4 @@
-package com.bookstoreapi.bookstoreapi;
+package com.bookstoreapi.bookstoreapi.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;

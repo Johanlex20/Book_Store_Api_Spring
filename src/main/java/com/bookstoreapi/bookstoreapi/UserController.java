@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -31,13 +32,25 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping()
-    public ResponseEntity<User> save(@RequestBody User user){
+    public ResponseEntity<User> create(@RequestBody User user){
+
+        boolean existsEmail = userRepository.existsByEmail(user.getEmail());
+        if (existsEmail){
+            return ResponseEntity.badRequest().build();
+        }
+         user.setCreatedAt(LocalDateTime.now());
          userRepository.save(user);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.created(null).body(user);
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@PathVariable(value = "id") Integer id, @RequestBody User user){
+
+        boolean existsEmail = userRepository.existsByEmailAndIdNot(user.getEmail(),id);
+
+        if (existsEmail){
+            return ResponseEntity.badRequest().build();
+        }
 
         User userUpdate = userRepository.findById(id).orElse(null);
 

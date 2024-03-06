@@ -18,9 +18,11 @@ public class SalesItem {
     private Integer downloadAvailable;
 
     @ManyToOne
-    private Book item;
+    @JoinColumn(name = "book_id", referencedColumnName = "id")
+    private Book book;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
     private SalesOrder order;
 
 

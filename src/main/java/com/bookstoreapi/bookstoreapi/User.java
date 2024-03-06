@@ -1,15 +1,12 @@
 package com.bookstoreapi.bookstoreapi;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Data
 
 public class User {
 
@@ -17,8 +14,26 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "firstname")
     private String firstName;
+
+    @Column(name = "lastname")
     private String lastName;
+
+    @Column(name = "fullname")
+    private String fullName;
+
     private String email;
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    private LocalDateTime createdAt;
+
+    public enum Role{
+        ADMIN,
+        USER
+    }
 
 }

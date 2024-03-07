@@ -1,5 +1,6 @@
 package com.bookstoreapi.bookstoreapi.controller;
 
+import com.bookstoreapi.bookstoreapi.controller.dto.BookFormDto;
 import com.bookstoreapi.bookstoreapi.domain.Book;
 import com.bookstoreapi.bookstoreapi.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -50,29 +52,36 @@ public class BookController {
 
     //@ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public ResponseEntity<Book> create(@RequestBody Book book) {
+    public ResponseEntity<Book> create(@RequestBody @Validated BookFormDto bookFormDto) {
 
         // crear un unico identificador "slug"
-        boolean slugExists = bookRepository.existsBySlug(book.getSlug());
+        boolean slugExists = bookRepository.existsBySlug(bookFormDto.getSlug());
 
         if (slugExists){
             return ResponseEntity.badRequest().build();
         }
 
-        book.setCreatedAt(LocalDateTime.now());
-        bookRepository.save(book);
+        Book book = new Book();
 
+        book.setTitle(bookFormDto.getTitle());
+        book.setPrice(bookFormDto.getPrice());
+        book.setSlug(bookFormDto.getSlug());
+        book.setDesc(bookFormDto.getDesc());
+        book.setCoverPath(bookFormDto.getCoverPath());
+        book.setFilePath(bookFormDto.getFilePath());
+        book.setCreatedAt(LocalDateTime.now());
+
+        bookRepository.save(book);
         return ResponseEntity
                 .created(URI.create("http://todotic.pe"))
                 .body(book);
-
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<?> update(@PathVariable( value = "id") Integer id, @RequestBody Book bookForm) {
+    public ResponseEntity<?> update(@PathVariable( value = "id") Integer id, @RequestBody @Validated BookFormDto bookFormDto) {
 
         // crear un unico identificador "slug" con el findBySlugAndIdnot verifica todos los Slug menos el del id
-        boolean slugExists = bookRepository.existsBySlugAndIdNot(bookForm.getSlug(), id);
+        boolean slugExists = bookRepository.existsBySlugAndIdNot(bookFormDto.getSlug(), id);
 
         if (slugExists){
             return ResponseEntity.badRequest().build();
@@ -86,16 +95,15 @@ public class BookController {
             return ResponseEntity.notFound().build();
         }
 
-        bookFromDb.setTitle(bookForm.getTitle());
-        bookFromDb.setPrice(bookForm.getPrice());
-        bookFromDb.setSlug(bookForm.getSlug());
-        bookFromDb.setDesc(bookForm.getDesc());
-        bookFromDb.setCoverPath(bookForm.getCoverPath());
-        bookFromDb.setFilePath(bookForm.getFilePath());
+        bookFromDb.setTitle(bookFormDto.getTitle());
+        bookFromDb.setPrice(bookFormDto.getPrice());
+        bookFromDb.setSlug(bookFormDto.getSlug());
+        bookFromDb.setDesc(bookFormDto.getDesc());
+        bookFromDb.setCoverPath(bookFormDto.getCoverPath());
+        bookFromDb.setFilePath(bookFormDto.getFilePath());
         bookFromDb.setUpdatedAt(LocalDateTime.now());
 
         bookRepository.save(bookFromDb);
-
         return ResponseEntity.ok(bookFromDb);
     }
 

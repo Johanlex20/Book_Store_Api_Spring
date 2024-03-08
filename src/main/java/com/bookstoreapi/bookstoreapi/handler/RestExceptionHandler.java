@@ -1,5 +1,6 @@
 package com.bookstoreapi.bookstoreapi.handler;
 
+import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,13 @@ public class RestExceptionHandler {
         problemDetail.setProperty("errors", errors);
         return problemDetail;
     }
+        @ExceptionHandler({BadRequestExecpton.class})
+        ProblemDetail handleBadRequestException(BadRequestExecpton ex){
+            ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+            problemDetail.setTitle("Bad Request");
+            problemDetail.setType(URI.create("https://api.todotic.pe/errors/bad-request"));
+            return problemDetail;
+        }
 
 
 }

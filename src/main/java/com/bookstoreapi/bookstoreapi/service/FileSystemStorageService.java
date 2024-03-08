@@ -1,5 +1,6 @@
 package com.bookstoreapi.bookstoreapi.service;
 
+import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -64,10 +65,10 @@ public class FileSystemStorageService implements StorageService {
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
-                throw new RuntimeException("Could not read file: " + filename);
+                throw new ResourceNotFoundException("Could not read file: " + filename);
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Could not read file: " + filename, e);
+            throw new ResourceNotFoundException("Could not read file: " + filename, e);
         }
     }
 

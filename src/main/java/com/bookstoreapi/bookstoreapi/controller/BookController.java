@@ -53,7 +53,7 @@ public class BookController {
         boolean slugExists = bookRepository.existsBySlug(bookFormDto.getSlug());
 
         if (slugExists){
-            throw new BadRequestExecpton();
+            throw new BadRequestExecpton("el slug ya existe!");
         }
 
         Book book = new Book();
@@ -76,7 +76,7 @@ public class BookController {
         boolean slugExists = bookRepository.existsBySlugAndIdNot(bookFormDto.getSlug(), id);
 
         if (slugExists){
-            throw new BadRequestExecpton();
+            throw new BadRequestExecpton("el slug ya existe!");
         }
 
         Book bookFromDb = bookRepository

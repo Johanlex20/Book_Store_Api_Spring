@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/users")
+@RequestMapping(value = "/api/admin/users")
 
 public class UserController {
     @Autowired
@@ -26,10 +26,7 @@ public class UserController {
     public ResponseEntity<User> findById(@PathVariable(value = "id") Integer id){
         User user = userRepository.findById(id).orElse(null);
 
-        if (user == null){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(user);
+        return user != null?  ResponseEntity.ok(user): ResponseEntity.notFound().build();
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -71,12 +68,13 @@ public class UserController {
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable(value = "id") Integer id){
 
-        User userDelete = userRepository.findById(id).orElse(null);
+        boolean existsUser = userRepository.existsById(id);
 
-        if (userDelete == null){
+        if (!existsUser){
             return ResponseEntity.notFound().build();
         }
-        userRepository.delete(userDelete);
+        userRepository.deleteById(id);
+
         return ResponseEntity.noContent().build();
 
     }

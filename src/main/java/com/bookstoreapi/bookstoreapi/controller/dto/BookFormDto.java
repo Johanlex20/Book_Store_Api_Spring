@@ -17,7 +17,7 @@ public class BookFormDto {
     private Float price;
 
     @NonNull
-    @Pattern(regexp = "[a-z0-9]+", message = "debe tener un formato valido con carcteres")
+    @Pattern(regexp = "[a-z0-9-]+", message = "debe tener un formato valido con carcteres")
     private String slug;
 
     @NotEmpty(message = "Descripcion no debe estar vacia.")

@@ -1,10 +1,14 @@
 package com.bookstoreapi.bookstoreapi.controller;
 
+import com.bookstoreapi.bookstoreapi.controller.dto.UserFormDTO;
 import com.bookstoreapi.bookstoreapi.domain.User;
+import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
+import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import com.bookstoreapi.bookstoreapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,65 +21,71 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping()
+    @GetMapping("list")
     public List<User> getAllUser(){
         return userRepository.findAll();
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<User> findById(@PathVariable(value = "id") Integer id){
-        User user = userRepository.findById(id).orElse(null);
-
-        return user != null?  ResponseEntity.ok(user): ResponseEntity.notFound().build();
+    public User findById(@PathVariable(value = "id") Integer id){
+        return userRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
     }
 
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public ResponseEntity<User> create(@RequestBody User user){
+    public User create(@RequestBody @Validated UserFormDTO userFormDTO){
 
-        boolean existsEmail = userRepository.existsByEmail(user.getEmail());
+        boolean existsEmail = userRepository.existsByEmail(userFormDTO.getEmail());
+
         if (existsEmail){
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestExecpton("El email ya existe!");
         }
+
+        User user = new User();
+
+         user.setFirstName(userFormDTO.getFirstName());
+         user.setLastName(userFormDTO.getLastName());
+         user.setEmail(userFormDTO.getEmail());
+         user.setPassword(userFormDTO.getPassword());
+         user.setRole(userFormDTO.getRole());
          user.setCreatedAt(LocalDateTime.now());
-         userRepository.save(user);
-        return ResponseEntity.created(null).body(user);
+         user.setFullName(userFormDTO.getFirstName().concat(" " + userFormDTO.getLastName()));
+
+        return userRepository.save(user);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<?> update(@PathVariable(value = "id") Integer id, @RequestBody User user){
+    public User update(@PathVariable(value = "id") Integer id, @RequestBody @Validated UserFormDTO userFormDTO){
 
-        boolean existsEmail = userRepository.existsByEmailAndIdNot(user.getEmail(),id);
+        boolean existsEmail = userRepository.existsByEmailAndIdNot(userFormDTO.getEmail(),id);
 
         if (existsEmail){
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestExecpton("El email ya existe!");
         }
 
-        User userUpdate = userRepository.findById(id).orElse(null);
+        User userUpdate = userRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
 
-        if (userUpdate != null){
-            userUpdate.setFirstName(user.getFirstName());
-            userUpdate.setLastName(user.getLastName());
-            userUpdate.setEmail(user.getEmail());
-
-            userRepository.save(userUpdate);
-        }else {
-            return ResponseEntity.notFound().build();
+        if (userUpdate != null) {
+            userUpdate.setFirstName(userFormDTO.getFirstName());
+            userUpdate.setLastName(userFormDTO.getLastName());
+            userUpdate.setFullName(userFormDTO.getFirstName().concat(" " + userFormDTO.getLastName()));
+            userUpdate.setEmail(userFormDTO.getEmail());
+            userUpdate.setPassword(userFormDTO.getPassword());
         }
-        return ResponseEntity.ok(userUpdate);
+           return userRepository.save(userUpdate);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable(value = "id") Integer id){
+    public void delete(@PathVariable(value = "id") Integer id){
 
         boolean existsUser = userRepository.existsById(id);
 
         if (!existsUser){
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("ID no encontrado");
         }
         userRepository.deleteById(id);
 
-        return ResponseEntity.noContent().build();
 
     }
 

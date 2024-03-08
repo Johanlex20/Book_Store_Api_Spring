@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,6 +27,10 @@ public class SalesOrder {
     private PaymentStatus paymentStatus;
 
     private LocalDateTime createdAt;
+
+    //relacion inversa asia SalesItem order
+    @OneToMany(mappedBy = "order")
+    private List<SalesItem>items;
 
     private enum PaymentStatus{
         PENDING,

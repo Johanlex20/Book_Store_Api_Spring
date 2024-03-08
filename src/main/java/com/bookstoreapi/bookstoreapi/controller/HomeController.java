@@ -1,9 +1,12 @@
 package com.bookstoreapi.bookstoreapi.controller;
 
+import com.bookstoreapi.bookstoreapi.controller.dto.paypal.TokenResponse;
 import com.bookstoreapi.bookstoreapi.domain.Book;
 import com.bookstoreapi.bookstoreapi.domain.SalesOrder;
 import com.bookstoreapi.bookstoreapi.repository.BookRepository;
 import com.bookstoreapi.bookstoreapi.repository.SalesOrderRepository;
+import com.bookstoreapi.bookstoreapi.service.PaypalService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,24 +15,25 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
 public class HomeController {
+
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
     private SalesOrderRepository salesOrderRepository;
+
+    @Autowired
+    private PaypalService paypalService;
+
 
     @GetMapping("/last-books")
     List<Book> getLastBooks(){
-        //return bookRepository.findAll(PageRequest.of(6,0,Sort.by("createdAt").descending()))
-               // .stream().toList();
         return bookRepository.findTop6ByOrderByCreatedAtDesc();
     }
 
@@ -64,6 +68,12 @@ public class HomeController {
         }else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping(value = "/orders/create")
+
+    public String tokenResponse(){
+        return paypalService.getAccessToken();
     }
 
 }

@@ -31,7 +31,6 @@ public class BookController {
         return bookRepository.findAll(pageable);
     }
 
-
     @GetMapping("/list")
     public List<Book> list() {
         return bookRepository.findAll();
@@ -72,16 +71,16 @@ public class BookController {
     @PutMapping(value = "/{id}")
     public Book update(@PathVariable( value = "id") Integer id, @RequestBody @Validated BookFormDto bookFormDto) {
 
+        Book bookFromDb = bookRepository
+                .findById(id)
+                .orElseThrow(ResourceNotFoundException::new);
+
         // crear un unico identificador "slug" con el findBySlugAndIdnot verifica todos los Slug menos el del id
         boolean slugExists = bookRepository.existsBySlugAndIdNot(bookFormDto.getSlug(), id);
 
         if (slugExists){
             throw new BadRequestExecpton("el slug ya existe!");
         }
-
-        Book bookFromDb = bookRepository
-                .findById(id)
-                .orElseThrow(ResourceNotFoundException::new);
 
         bookFromDb.setTitle(bookFormDto.getTitle());
         bookFromDb.setPrice(bookFormDto.getPrice());

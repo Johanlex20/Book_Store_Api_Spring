@@ -6,6 +6,10 @@ import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
 import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import com.bookstoreapi.bookstoreapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +24,13 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserRepository userRepository;
+
+
+    @GetMapping("")
+    public Page<User> paginete(@PageableDefault(sort = "firstName", direction = Sort.Direction.ASC, size = 5) Pageable pageable){
+        return userRepository.findAll(pageable);
+    }
+
 
     @GetMapping("list")
     public List<User> getAllUser(){
@@ -57,13 +68,16 @@ public class UserController {
     @PutMapping(value = "/{id}")
     public User update(@PathVariable(value = "id") Integer id, @RequestBody @Validated UserFormDTO userFormDTO){
 
+        User userUpdate = userRepository
+                .findById(id)
+                .orElseThrow(ResourceNotFoundException::new);
+
         boolean existsEmail = userRepository.existsByEmailAndIdNot(userFormDTO.getEmail(),id);
 
         if (existsEmail){
             throw new BadRequestExecpton("El email ya existe!");
         }
 
-        User userUpdate = userRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
 
         if (userUpdate != null) {
             userUpdate.setFirstName(userFormDTO.getFirstName());

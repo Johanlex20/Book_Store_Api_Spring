@@ -1,13 +1,20 @@
 package com.bookstoreapi.bookstoreapi.controller;
 
-import com.bookstoreapi.bookstoreapi.controller.dto.paypal.TokenResponse;
+import com.bookstoreapi.bookstoreapi.controller.dto.paypal.OrderCaptureResponse;
+import com.bookstoreapi.bookstoreapi.controller.dto.paypal.OrderResponse;
 import com.bookstoreapi.bookstoreapi.domain.Book;
+import com.bookstoreapi.bookstoreapi.domain.SalesItem;
 import com.bookstoreapi.bookstoreapi.domain.SalesOrder;
+import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
+import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import com.bookstoreapi.bookstoreapi.repository.BookRepository;
+import com.bookstoreapi.bookstoreapi.repository.SalesItemRepository;
 import com.bookstoreapi.bookstoreapi.repository.SalesOrderRepository;
 import com.bookstoreapi.bookstoreapi.service.PaypalService;
-import jakarta.validation.Valid;
+import com.bookstoreapi.bookstoreapi.service.SalesOrderService;
+import com.bookstoreapi.bookstoreapi.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,11 +25,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api")
-public class HomeController {
 
+public class HomeController {
     @Autowired
     private BookRepository bookRepository;
     @Autowired
@@ -31,9 +39,20 @@ public class HomeController {
     @Autowired
     private PaypalService paypalService;
 
+    @Autowired
+    private SalesOrderService salesOrderService;
+
+    @Autowired
+    private SalesItemRepository salesItemRepository;
+
+    @Autowired
+    private StorageService storageService;
+
 
     @GetMapping("/last-books")
     List<Book> getLastBooks(){
+        //return bookRepository.findAll(PageRequest.of(6,0,Sort.by("createdAt").descending()))
+               // .stream().toList();
         return bookRepository.findTop6ByOrderByCreatedAtDesc();
     }
 
@@ -70,10 +89,70 @@ public class HomeController {
         }
     }
 
-    @PostMapping(value = "/orders/create")
+    @PostMapping("/checkout/paypal/create")
+    public Map<String, String> createPaypalCheckout(@RequestParam String returnUrl, @RequestBody List<Integer> bookIds){
+        SalesOrder salesOrder = salesOrderService.create(bookIds);
+        OrderResponse orderResponse = paypalService.createOrder(salesOrder, returnUrl, returnUrl);
 
-    public String tokenResponse(){
-        return paypalService.getAccessToken();
+        String approveUrl = orderResponse
+                .getLinks()
+                .stream()
+                .filter(link -> link.getRel().equals("approve"))
+                .findFirst()
+                .orElseThrow(RuntimeException::new)
+                .getHref();
+
+        return Map.of("approveUrl", approveUrl);
     }
+
+    @PostMapping("/checkout/paypal/capture")
+    public Map<String, Object> capturePaypalCheckout(@RequestParam String token){
+        OrderCaptureResponse orderCaptureResponse = paypalService.captureOrder(token);
+
+        boolean completed = orderCaptureResponse != null && orderCaptureResponse.getStatus().equals("COMPLETED");
+        int orderId = 0;
+
+        if (completed){
+            orderId = Integer.parseInt(orderCaptureResponse.getPurchaseUnits().get(0).getReferenceId());
+
+            SalesOrder salesOrder = salesOrderRepository
+                    .findById(orderId)
+                    .orElseThrow(RuntimeException::new);
+
+            salesOrder.setPaymentStatus(SalesOrder.PaymentStatus.PAID);
+            salesOrderRepository.save(salesOrder);
+        }
+        return Map.of("COMPLETED",completed, "orderId", orderId);
+    }
+
+    @GetMapping(value = "/orders/{orderId}/items/{itemId}/book/download")
+    Resource downloadBookFromSalesItem(
+            @PathVariable Integer orderId,
+            @PathVariable Integer itemId
+    ){
+        SalesOrder salesOrder = salesOrderRepository
+                .findById(orderId)
+                .orElseThrow(ResourceNotFoundException::new);
+
+        if (salesOrder.getPaymentStatus().equals(SalesOrder.PaymentStatus.PENDING)){
+            throw new BadRequestExecpton("The order has not been paid yet.");
+        }
+        SalesItem salesItem = salesItemRepository
+                .findByIdAndOrder(itemId, salesOrder)
+                .orElseThrow(ResourceNotFoundException::new);
+
+        if (salesItem.getDownloadAvailable() > 0){
+
+            salesItem.setDownloadAvailable(
+                    salesItem.getDownloadAvailable() -1
+            );
+            salesItemRepository.save(salesItem);
+
+            return storageService.loadAsResource(salesItem.getBook().getFilePath());
+        }else {
+            throw new BadRequestExecpton("Can't download this file anymore.");
+        }
+    }
+
 
 }

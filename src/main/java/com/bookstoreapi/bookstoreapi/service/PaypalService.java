@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -120,11 +121,17 @@ public class PaypalService {
         headers.setBearerAuth(accessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> entity = new HttpEntity<>(null, headers);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<OrderCaptureResponse> response = restTemplate.postForEntity(url, entity, OrderCaptureResponse.class);
+        try {
+            HttpEntity<Object> entity = new HttpEntity<>(null, headers);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<OrderCaptureResponse> response = restTemplate.postForEntity(url, entity, OrderCaptureResponse.class);
 
-        return response.getBody();
+            return response.getBody();
+        }catch (HttpClientErrorException e){
+            return null;
+        }
+
+
     }
 
 

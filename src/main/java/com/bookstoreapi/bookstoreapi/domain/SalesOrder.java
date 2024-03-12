@@ -29,10 +29,10 @@ public class SalesOrder {
     private LocalDateTime createdAt;
 
     //relacion inversa asia SalesItem order
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<SalesItem>items;
 
-    private enum PaymentStatus{
+    public enum PaymentStatus{
         PENDING,
         PAID
     }

@@ -5,8 +5,8 @@ import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
 import com.bookstoreapi.bookstoreapi.repository.UserRepository;
 import com.bookstoreapi.bookstoreapi.web.dto.SingupUserDTO;
 import com.bookstoreapi.bookstoreapi.web.dto.UserProfileDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,18 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.PipedReader;
-import java.time.LocalDateTime;
-
 @RestController
 @RequestMapping(value = "/api")
+@AllArgsConstructor
 public class AccountController {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/signup")
     UserProfileDTO singup(@RequestBody @Validated SingupUserDTO singupUserDTO){
@@ -33,22 +28,22 @@ public class AccountController {
         if (existsEmail){
             throw new BadRequestExecpton("Email already exists.");
         }
-        User user = new User();
+        //User user = new User();
 
-        user.setFirstName(singupUserDTO.getFirstName());
-        user.setLastName(singupUserDTO.getLastName());
-        user.setEmail(singupUserDTO.getEmail());
+        User user = new ModelMapper().map(singupUserDTO, User.class);
+
+        //user.setFirstName(singupUserDTO.getFirstName());
+        //user.setLastName(singupUserDTO.getLastName());
+        //user.setEmail(singupUserDTO.getEmail());
+        //user.setFullName(singupUserDTO.getFirstName().concat(" " + singupUserDTO.getLastName()));
+        //user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(singupUserDTO.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-        user.setFullName(singupUserDTO.getFirstName().concat(" " + singupUserDTO.getLastName()));
         user.setRole(User.Role.USER);
 
         userRepository.save(user);
 
-        return new UserProfileDTO(user.getFirstName(),user.getLastName(),user.getFullName(),user.getEmail(),user.getRole());
+        //return new UserProfileDTO(user.getFirstName(),user.getLastName(),user.getFullName(),user.getEmail(),user.getRole());
+        return new ModelMapper().map(user, UserProfileDTO.class);
 
     }
-
-
-
 }

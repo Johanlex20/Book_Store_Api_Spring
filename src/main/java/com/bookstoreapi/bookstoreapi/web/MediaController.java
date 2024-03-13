@@ -1,6 +1,7 @@
 package com.bookstoreapi.bookstoreapi.web;
 
 import com.bookstoreapi.bookstoreapi.service.StorageService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -14,10 +15,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/media")
+@AllArgsConstructor
 public class MediaController {
     //@Qualifier("filesystem") //llama al servicio implementado en repository StorageService
-    @Autowired
-    private StorageService storageService;
+    private final StorageService storageService;
 
     @PostMapping(value = "/upload")
     Map<String, String> upload(@RequestParam("file") MultipartFile multipartFile) {

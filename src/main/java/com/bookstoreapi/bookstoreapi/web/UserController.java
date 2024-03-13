@@ -5,6 +5,8 @@ import com.bookstoreapi.bookstoreapi.domain.User;
 import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
 import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import com.bookstoreapi.bookstoreapi.repository.UserRepository;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,20 +22,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/admin/users")
+@AllArgsConstructor
 
 public class UserController {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-
-    @GetMapping("")
-    public Page<User> paginete(@PageableDefault(sort = "firstName", direction = Sort.Direction.ASC, size = 5) Pageable pageable){
+    @GetMapping
+    public Page<User> paginete(@PageableDefault(sort = "fullName", direction = Sort.Direction.ASC, size = 5) Pageable pageable){
         return userRepository.findAll(pageable);
     }
-
 
     @GetMapping("list")
     public List<User> getAllUser(){
@@ -54,16 +53,17 @@ public class UserController {
         if (existsEmail){
             throw new BadRequestExecpton("El email ya existe!");
         }
+//         User user = new User();
+//         user.setFirstName(userFormDTO.getFirstName());
+//         user.setLastName(userFormDTO.getLastName());
+//         user.setEmail(userFormDTO.getEmail());
+//         user.setFullName(userFormDTO.getFirstName().concat(" " + userFormDTO.getLastName()));
+//         user.setCreatedAt(LocalDateTime.now());
 
-        User user = new User();
+        User user = new ModelMapper().map(userFormDTO, User.class);
 
-         user.setFirstName(userFormDTO.getFirstName());
-         user.setLastName(userFormDTO.getLastName());
-         user.setEmail(userFormDTO.getEmail());
          user.setPassword(passwordEncoder.encode(userFormDTO.getPassword()));
          user.setRole(userFormDTO.getRole());
-         user.setCreatedAt(LocalDateTime.now());
-         user.setFullName(userFormDTO.getFirstName().concat(" " + userFormDTO.getLastName()));
 
         return userRepository.save(user);
     }
@@ -81,13 +81,13 @@ public class UserController {
             throw new BadRequestExecpton("El email ya existe!");
         }
 
-
         if (userUpdate != null) {
-            userUpdate.setFirstName(userFormDTO.getFirstName());
-            userUpdate.setLastName(userFormDTO.getLastName());
-            userUpdate.setFullName(userFormDTO.getFirstName().concat(" " + userFormDTO.getLastName()));
-            userUpdate.setEmail(userFormDTO.getEmail());
-            userUpdate.setPassword(userFormDTO.getPassword());
+//            userUpdate.setFirstName(userFormDTO.getFirstName());
+//            userUpdate.setLastName(userFormDTO.getLastName());
+//            userUpdate.setFullName(userFormDTO.getFirstName().concat(" " + userFormDTO.getLastName()));
+//            userUpdate.setEmail(userFormDTO.getEmail());
+//            userUpdate.setPassword(userFormDTO.getPassword());
+            new ModelMapper().map(userFormDTO,userUpdate);
         }
            return userRepository.save(userUpdate);
     }

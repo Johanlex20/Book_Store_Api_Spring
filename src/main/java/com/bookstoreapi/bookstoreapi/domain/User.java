@@ -35,5 +35,10 @@ public class User {
         ADMIN,
         USER
     }
+    @PrePersist
+    private void prepersist(){
+        createdAt = LocalDateTime.now();
+        fullName = firstName +" "+lastName;
+    }
 
 }

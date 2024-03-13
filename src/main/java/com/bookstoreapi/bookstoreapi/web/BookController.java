@@ -5,7 +5,8 @@ import com.bookstoreapi.bookstoreapi.domain.Book;
 import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
 import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import com.bookstoreapi.bookstoreapi.repository.BookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,17 +14,16 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping( value = "/api/admin/books")
 
 public class BookController {
 
-    @Autowired
-    private BookRepository bookRepository;
+    // @Autowired
+    private final BookRepository bookRepository;
 
     @GetMapping
     public Page<Book> paginate(@PageableDefault(sort = "title", direction = Sort.Direction.ASC, size = 5) Pageable pageable){
@@ -55,15 +55,17 @@ public class BookController {
             throw new BadRequestExecpton("el slug ya existe!");
         }
 
-        Book book = new Book();
+        //Book book = new Book();
+        //book.setTitle(bookFormDto.getTitle());
+        //book.setPrice(bookFormDto.getPrice());
+        //book.setSlug(bookFormDto.getSlug());
+        //book.setDesc(bookFormDto.getDesc());
+        //book.setCoverPath(bookFormDto.getCoverPath());
+        //book.setFilePath(bookFormDto.getFilePath());
+        //book.setCreatedAt(LocalDateTime.now());
 
-        book.setTitle(bookFormDto.getTitle());
-        book.setPrice(bookFormDto.getPrice());
-        book.setSlug(bookFormDto.getSlug());
-        book.setDesc(bookFormDto.getDesc());
-        book.setCoverPath(bookFormDto.getCoverPath());
-        book.setFilePath(bookFormDto.getFilePath());
-        book.setCreatedAt(LocalDateTime.now());
+        Book book = new ModelMapper().map(bookFormDto, Book.class);
+
 
         return bookRepository.save(book);
     }
@@ -82,13 +84,15 @@ public class BookController {
             throw new BadRequestExecpton("el slug ya existe!");
         }
 
-        bookFromDb.setTitle(bookFormDto.getTitle());
-        bookFromDb.setPrice(bookFormDto.getPrice());
-        bookFromDb.setSlug(bookFormDto.getSlug());
-        bookFromDb.setDesc(bookFormDto.getDesc());
-        bookFromDb.setCoverPath(bookFormDto.getCoverPath());
-        bookFromDb.setFilePath(bookFormDto.getFilePath());
-        bookFromDb.setUpdatedAt(LocalDateTime.now());
+//        bookFromDb.setTitle(bookFormDto.getTitle());
+//        bookFromDb.setPrice(bookFormDto.getPrice());
+//        bookFromDb.setSlug(bookFormDto.getSlug());
+//        bookFromDb.setDesc(bookFormDto.getDesc());
+//        bookFromDb.setCoverPath(bookFormDto.getCoverPath());
+//        bookFromDb.setFilePath(bookFormDto.getFilePath());
+//        bookFromDb.setUpdatedAt(LocalDateTime.now());
+
+        new ModelMapper().map(bookFormDto, bookFromDb);
 
         return bookRepository.save(bookFromDb);
     }

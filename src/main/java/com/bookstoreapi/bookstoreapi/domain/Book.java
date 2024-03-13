@@ -30,5 +30,15 @@ public class Book {
 
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    private void prePersist(){
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void preUpdate(){
+        updatedAt = LocalDateTime.now();
+    }
+
 
 }

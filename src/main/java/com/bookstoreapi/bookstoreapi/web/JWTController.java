@@ -7,7 +7,8 @@ import com.bookstoreapi.bookstoreapi.security.TokenProvider;
 import com.bookstoreapi.bookstoreapi.web.dto.AuthRequest;
 import com.bookstoreapi.bookstoreapi.web.dto.AuthResponse;
 import com.bookstoreapi.bookstoreapi.web.dto.UserProfileDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,20 +20,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api")
+@AllArgsConstructor
 public class JWTController {
 
-    @Autowired
-    private TokenProvider tokenProvider;
-
-    @Autowired
-    private AuthenticationManagerBuilder authenticationManagerBuilder;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final TokenProvider tokenProvider;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final UserRepository userRepository;
 
     @PostMapping(value = "/authenticate")
     public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest authRequest){
@@ -53,14 +48,9 @@ public class JWTController {
                 .findByEmail(authRequest.getEmail())
                 .orElseThrow(ResourceNotFoundException::new);
 
-        AuthResponse authResponse = new AuthResponse(
-                token,
-                new UserProfileDTO(
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getFullName(),
-                        user.getEmail(),
-                        user.getRole()));
+        UserProfileDTO userProfileDTO = new ModelMapper().map(user, UserProfileDTO.class);
+
+        AuthResponse authResponse = new AuthResponse(token, userProfileDTO); //new UserProfileDTO(user.getFirstName(), user.getLastName(), user.getFullName(), user.getEmail(), user.getRole()));
 
         return ResponseEntity
                 .ok()

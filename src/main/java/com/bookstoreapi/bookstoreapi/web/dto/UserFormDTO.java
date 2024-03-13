@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
+
 public class UserFormDTO {
 
     @NotEmpty(message="Nombre no debe estar vacio")

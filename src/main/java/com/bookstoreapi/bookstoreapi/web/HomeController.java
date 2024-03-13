@@ -13,6 +13,7 @@ import com.bookstoreapi.bookstoreapi.repository.SalesOrderRepository;
 import com.bookstoreapi.bookstoreapi.service.PaypalService;
 import com.bookstoreapi.bookstoreapi.service.SalesOrderService;
 import com.bookstoreapi.bookstoreapi.service.StorageService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -27,24 +28,16 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api")
+@AllArgsConstructor
 
 public class HomeController {
-    @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private SalesOrderRepository salesOrderRepository;
 
-    @Autowired
-    private PaypalService paypalService;
-
-    @Autowired
-    private SalesOrderService salesOrderService;
-
-    @Autowired
-    private SalesItemRepository salesItemRepository;
-
-    @Autowired
-    private StorageService storageService;
+    private final BookRepository bookRepository;
+    private final SalesOrderRepository salesOrderRepository;
+    private final PaypalService paypalService;
+    private final SalesOrderService salesOrderService;
+    private final SalesItemRepository salesItemRepository;
+    private final StorageService storageService;
 
 
     @GetMapping("/last-books")

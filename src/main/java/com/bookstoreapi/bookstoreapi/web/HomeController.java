@@ -1,7 +1,7 @@
-package com.bookstoreapi.bookstoreapi.controller;
+package com.bookstoreapi.bookstoreapi.web;
 
-import com.bookstoreapi.bookstoreapi.controller.dto.paypal.OrderCaptureResponse;
-import com.bookstoreapi.bookstoreapi.controller.dto.paypal.OrderResponse;
+import com.bookstoreapi.bookstoreapi.web.dto.paypal.OrderCaptureResponse;
+import com.bookstoreapi.bookstoreapi.web.dto.paypal.OrderResponse;
 import com.bookstoreapi.bookstoreapi.domain.Book;
 import com.bookstoreapi.bookstoreapi.domain.SalesItem;
 import com.bookstoreapi.bookstoreapi.domain.SalesOrder;
@@ -16,12 +16,10 @@ import com.bookstoreapi.bookstoreapi.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

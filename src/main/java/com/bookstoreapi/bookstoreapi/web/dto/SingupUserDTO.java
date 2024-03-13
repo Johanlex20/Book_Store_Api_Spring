@@ -1,13 +1,13 @@
-package com.bookstoreapi.bookstoreapi.controller.dto;
+package com.bookstoreapi.bookstoreapi.web.dto;
 
-import com.bookstoreapi.bookstoreapi.domain.User;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.NonNull;
-import org.aspectj.bridge.IMessage;
 
 @Data
-public class UserFormDTO {
+public class SingupUserDTO {
 
     @NotEmpty(message="Nombre no debe estar vacio")
     @Size(min = 3, message = "Nombre debe tener minimo 3 caracteres" )
@@ -24,14 +24,7 @@ public class UserFormDTO {
     private String email;
 
     @NotEmpty(message = "Contraseña no debe estar vacia")
-    @Pattern(regexp = "[a-z0-9-]+", message = "Contraseña debe tener un formato Valido")
+    @Size(min = 4)
     private String password;
-
-    @NotNull(message = "Role no puede ser nulo")
-    private User.Role role;
-
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
 
 }

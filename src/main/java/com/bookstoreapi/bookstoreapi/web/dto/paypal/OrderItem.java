@@ -1,4 +1,4 @@
-package com.bookstoreapi.bookstoreapi.controller.dto.paypal;
+package com.bookstoreapi.bookstoreapi.web.dto.paypal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

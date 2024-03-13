@@ -1,6 +1,6 @@
-package com.bookstoreapi.bookstoreapi.controller;
+package com.bookstoreapi.bookstoreapi.web;
 
-import com.bookstoreapi.bookstoreapi.controller.dto.BookFormDto;
+import com.bookstoreapi.bookstoreapi.web.dto.BookFormDto;
 import com.bookstoreapi.bookstoreapi.domain.Book;
 import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
 import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;

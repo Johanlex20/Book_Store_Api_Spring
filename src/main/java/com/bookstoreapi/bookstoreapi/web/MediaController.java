@@ -1,4 +1,4 @@
-package com.bookstoreapi.bookstoreapi.controller;
+package com.bookstoreapi.bookstoreapi.web;
 
 import com.bookstoreapi.bookstoreapi.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;

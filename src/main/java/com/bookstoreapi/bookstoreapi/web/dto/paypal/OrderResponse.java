@@ -1,4 +1,4 @@
-package com.bookstoreapi.bookstoreapi.controller.dto.paypal;
+package com.bookstoreapi.bookstoreapi.web.dto.paypal;
 
 import lombok.Data;
 

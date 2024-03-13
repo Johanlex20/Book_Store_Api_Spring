@@ -1,6 +1,6 @@
 package com.bookstoreapi.bookstoreapi.service;
 
-import com.bookstoreapi.bookstoreapi.controller.dto.paypal.*;
+import com.bookstoreapi.bookstoreapi.web.dto.paypal.*;
 import com.bookstoreapi.bookstoreapi.domain.Book;
 import com.bookstoreapi.bookstoreapi.domain.SalesOrder;
 import org.springframework.http.HttpEntity;

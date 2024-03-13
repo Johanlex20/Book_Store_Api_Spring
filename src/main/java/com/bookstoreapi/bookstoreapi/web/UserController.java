@@ -1,6 +1,6 @@
-package com.bookstoreapi.bookstoreapi.controller;
+package com.bookstoreapi.bookstoreapi.web;
 
-import com.bookstoreapi.bookstoreapi.controller.dto.UserFormDTO;
+import com.bookstoreapi.bookstoreapi.web.dto.UserFormDTO;
 import com.bookstoreapi.bookstoreapi.domain.User;
 import com.bookstoreapi.bookstoreapi.exception.BadRequestExecpton;
 import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +24,9 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @GetMapping("")
@@ -57,7 +60,7 @@ public class UserController {
          user.setFirstName(userFormDTO.getFirstName());
          user.setLastName(userFormDTO.getLastName());
          user.setEmail(userFormDTO.getEmail());
-         user.setPassword(userFormDTO.getPassword());
+         user.setPassword(passwordEncoder.encode(userFormDTO.getPassword()));
          user.setRole(userFormDTO.getRole());
          user.setCreatedAt(LocalDateTime.now());
          user.setFullName(userFormDTO.getFirstName().concat(" " + userFormDTO.getLastName()));

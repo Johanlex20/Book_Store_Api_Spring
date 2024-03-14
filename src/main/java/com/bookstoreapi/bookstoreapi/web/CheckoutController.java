@@ -3,6 +3,8 @@ import com.bookstoreapi.bookstoreapi.domain.SalesOrder;
 import com.bookstoreapi.bookstoreapi.repository.SalesOrderRepository;
 import com.bookstoreapi.bookstoreapi.service.PaypalService;
 import com.bookstoreapi.bookstoreapi.service.SalesOrderService;
+import com.bookstoreapi.bookstoreapi.web.dto.PaypalCaptureDto;
+import com.bookstoreapi.bookstoreapi.web.dto.PaypalOrderDto;
 import com.bookstoreapi.bookstoreapi.web.dto.paypal.OrderCaptureResponse;
 import com.bookstoreapi.bookstoreapi.web.dto.paypal.OrderResponse;
 import lombok.AllArgsConstructor;
@@ -21,7 +23,7 @@ public class CheckoutController {
     private final SalesOrderRepository salesOrderRepository;
 
     @PostMapping("/checkout/paypal/create")
-    public Map<String, String> createPaypalCheckout(@RequestParam String returnUrl, @RequestBody List<Integer> bookIds){
+    public PaypalOrderDto createPaypalCheckout(@RequestParam String returnUrl, @RequestBody List<Integer> bookIds){
         SalesOrder salesOrder = salesOrderService.create(bookIds);
         OrderResponse orderResponse = paypalService.createOrder(salesOrder, returnUrl, returnUrl);
 
@@ -33,11 +35,11 @@ public class CheckoutController {
                 .orElseThrow(RuntimeException::new)
                 .getHref();
 
-        return Map.of("approveUrl", approveUrl);
+        return new PaypalOrderDto(approveUrl);
     }
 
     @PostMapping("/checkout/paypal/capture")
-    public Map<String, Object> capturePaypalCheckout(@RequestParam String token){
+    public PaypalCaptureDto capturePaypalCheckout(@RequestParam String token){
         OrderCaptureResponse orderCaptureResponse = paypalService.captureOrder(token);
 
         boolean completed = orderCaptureResponse != null && orderCaptureResponse.getStatus().equals("COMPLETED");
@@ -45,10 +47,8 @@ public class CheckoutController {
 
         if (completed){
             orderId = Integer.parseInt(orderCaptureResponse.getPurchaseUnits().get(0).getReferenceId());
-            SalesOrder salesOrder = salesOrderService.findById(orderId);
-            salesOrder.setPaymentStatus(SalesOrder.PaymentStatus.PAID);
-            salesOrderRepository.save(salesOrder);
+            salesOrderService.updateForPaymentCompleted(orderId);
         }
-        return Map.of("COMPLETED",completed, "orderId", orderId);
+        return new PaypalCaptureDto(completed, orderId);
     }
 }

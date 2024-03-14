@@ -8,6 +8,6 @@ public interface SalesOrderService {
 
     SalesOrder create(List<Integer> bookIds);
 
-    SalesOrder findById(Integer id);
+    SalesOrder updateForPaymentCompleted(Integer id);
 
 }

@@ -22,10 +22,13 @@ public class SalesOrderServiceImpl implements SalesOrderService{
     @Autowired
     private SalesOrderRepository salesOrderRepository;
 
-    public SalesOrder findById(Integer id){
-        return salesOrderRepository
+    public SalesOrder updateForPaymentCompleted(Integer id){
+        SalesOrder salesOrder =  salesOrderRepository
                 .findById(id)
                 .orElseThrow(RuntimeException::new);
+
+        salesOrder.setPaymentStatus(SalesOrder.PaymentStatus.PAID);
+        return salesOrderRepository.save(salesOrder);
     }
 
     public SalesOrder create(List<Integer> bookIds){

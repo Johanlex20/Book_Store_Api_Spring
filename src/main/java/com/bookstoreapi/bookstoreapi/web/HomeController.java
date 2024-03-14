@@ -80,8 +80,6 @@ public class HomeController {
         }
     }
 
-
-
     @GetMapping(value = "/orders/{orderId}/items/{itemId}/book/download")
     Resource downloadBookFromSalesItem(
             @PathVariable Integer orderId,

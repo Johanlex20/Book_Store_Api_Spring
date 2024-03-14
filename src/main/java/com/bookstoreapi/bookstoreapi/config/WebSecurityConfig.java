@@ -1,5 +1,6 @@
 package com.bookstoreapi.bookstoreapi.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -9,10 +10,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import com.bookstoreapi.bookstoreapi.security.JWTConfigurer;
-import com.bookstoreapi.bookstoreapi.security.TokenProvider;
+import com.bookstoreapi.bookstoreapi.security.jwt.JWTConfigurer;
+import com.bookstoreapi.bookstoreapi.security.jwt.TokenProvider;
 @Configuration
 public class WebSecurityConfig {
+
+    @Value("${jwt.Secret}")
+    private String jwtSecret;
+    @Value("${jwt.validity-in-seconds}")
+    private Long jwtValidityInSeconds;
 
    @Bean
    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,7 +47,7 @@ public class WebSecurityConfig {
 
     @Bean
     public TokenProvider tokenProvider() {
-        return new TokenProvider("chLhMF9w3mwDutysbQxsX8x4CGwZef4mayTGSmbAG2BUsXbYFKvXrVfnPCa62PJxp9TuHxx4PQAS2yGUTBAPy3Dy53j8Uj2wb2AQ3nK8VLg7tUx9HCzHATEp", 2592000L);
+        return new TokenProvider(jwtSecret, jwtValidityInSeconds);
     }
 
 }

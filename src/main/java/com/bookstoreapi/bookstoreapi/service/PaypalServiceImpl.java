@@ -3,6 +3,7 @@ package com.bookstoreapi.bookstoreapi.service;
 import com.bookstoreapi.bookstoreapi.web.dto.paypal.*;
 import com.bookstoreapi.bookstoreapi.domain.Book;
 import com.bookstoreapi.bookstoreapi.domain.SalesOrder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,18 +20,24 @@ import java.util.Collections;
 @Service
 public class PaypalServiceImpl implements PaypalService{
 
-    private final static String PAYPAL_API_BASE = "https://api-m.sandbox.paypal.com";
-    private final static String PAYPAL_CLIENT_ID = "ATDaL4aLTNUscvJlFhb5nsqpN9ggvAeOQbnPcI5rBhbzVMDFCIymkHbq21Vm1tI481wy2wyW7DUc0FrA";
-    private final static String PAYPAL_CLIENT_SECRET = "EKKbeRYDJsFTd9w46Ls75qcZptrZkT326Xjj_34YBw9cqkC-1azLgwgfYKG6DQtOQlasH4dVxVFoc19V";
+//    private final static String PAYPAL_API_BASE = "https://api-m.sandbox.paypal.com";
+//    private final static String PAYPAL_CLIENT_ID = "ATDaL4aLTNUscvJlFhb5nsqpN9ggvAeOQbnPcI5rBhbzVMDFCIymkHbq21Vm1tI481wy2wyW7DUc0FrA";
+//    private final static String PAYPAL_CLIENT_SECRET = "EKKbeRYDJsFTd9w46Ls75qcZptrZkT326Xjj_34YBw9cqkC-1azLgwgfYKG6DQtOQlasH4dVxVFoc19V";
 
+    @Value("${paypal.api-base}")
+    private String paypalApiBase;
+    @Value("${paypal.client.id}")
+    private String paypalClientId;
+    @Value("${paypal.client.secret}")
+    private String paypalClientSecret;
 
     private String getAccessToken() {
-        String url = String.format("%s/v1/oauth2/token", PAYPAL_API_BASE);
+        String url = String.format("%s/v1/oauth2/token", paypalApiBase);
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBasicAuth(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET);
+        headers.setBasicAuth(paypalClientId, paypalClientSecret);
 
         // FormHttpMessageConverter is configured by default
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
@@ -46,7 +53,7 @@ public class PaypalServiceImpl implements PaypalService{
     //crear orden de compra PAYPAL
 
     public OrderResponse createOrder(SalesOrder salesOrder, String returnUrl, String cancelUrl) {
-        String url = String.format("%s/v2/checkout/orders", PAYPAL_API_BASE);
+        String url = String.format("%s/v2/checkout/orders", paypalApiBase);
 
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.setIntent(OrderRequest.Intent.CAPTURE);
@@ -111,7 +118,7 @@ public class PaypalServiceImpl implements PaypalService{
     //METODO PARA CAPTURAR UNA ORDEN DE PAGO
 
     public OrderCaptureResponse captureOrder(String orderId) {
-        String url = String.format("%s/v2/checkout/orders/%s/capture", PAYPAL_API_BASE, orderId);
+        String url = String.format("%s/v2/checkout/orders/%s/capture", paypalApiBase, orderId);
 
         // get access token
         String accessToken = getAccessToken();

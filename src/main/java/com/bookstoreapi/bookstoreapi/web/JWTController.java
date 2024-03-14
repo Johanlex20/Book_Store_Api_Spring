@@ -3,7 +3,7 @@ package com.bookstoreapi.bookstoreapi.web;
 import com.bookstoreapi.bookstoreapi.domain.User;
 import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import com.bookstoreapi.bookstoreapi.repository.UserRepository;
-import com.bookstoreapi.bookstoreapi.security.TokenProvider;
+import com.bookstoreapi.bookstoreapi.security.jwt.TokenProvider;
 import com.bookstoreapi.bookstoreapi.web.dto.AuthRequest;
 import com.bookstoreapi.bookstoreapi.web.dto.AuthResponse;
 import com.bookstoreapi.bookstoreapi.web.dto.UserProfileDTO;

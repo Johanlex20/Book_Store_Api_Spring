@@ -1,4 +1,4 @@
-package com.bookstoreapi.bookstoreapi.security;
+package com.bookstoreapi.bookstoreapi.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

@@ -2,6 +2,7 @@ package com.bookstoreapi.bookstoreapi.service;
 
 import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -21,13 +22,15 @@ import java.util.UUID;
 @Service//("filesystem")
 public class FileSystemStorageService implements StorageService {
 
-    private final static  String STORAGE_LOCATION = "mediafile";
+    //private final static  String STORAGE_LOCATION = "mediafile";
+    @Value("${storage.location}")
+    private String storageLocation;
 
     @PostConstruct
     @Override
     public void init() {
         try {
-            Files.createDirectories(Paths.get(STORAGE_LOCATION));
+            Files.createDirectories(Paths.get(storageLocation));
         } catch (IOException e){
             throw new RuntimeException("Could not initialize storage location", e);
         }
@@ -45,7 +48,7 @@ public class FileSystemStorageService implements StorageService {
 
         try {
             InputStream inputStream = file.getInputStream();
-            Files.copy(inputStream, Paths.get(STORAGE_LOCATION).resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(inputStream, Paths.get(storageLocation).resolve(filename), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + filename, e);
         }
@@ -54,7 +57,7 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public Path load(String filename) {
-        return Paths.get(STORAGE_LOCATION).resolve(filename);
+        return Paths.get(storageLocation).resolve(filename);
     }
 
     @Override

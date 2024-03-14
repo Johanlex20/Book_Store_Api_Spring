@@ -1,5 +1,7 @@
 package com.bookstoreapi.bookstoreapi.web;
 
+import com.bookstoreapi.bookstoreapi.service.PaypalService;
+import com.bookstoreapi.bookstoreapi.service.SalesOrderService;
 import com.bookstoreapi.bookstoreapi.web.dto.paypal.OrderCaptureResponse;
 import com.bookstoreapi.bookstoreapi.web.dto.paypal.OrderResponse;
 import com.bookstoreapi.bookstoreapi.domain.Book;
@@ -10,11 +12,9 @@ import com.bookstoreapi.bookstoreapi.exception.ResourceNotFoundException;
 import com.bookstoreapi.bookstoreapi.repository.BookRepository;
 import com.bookstoreapi.bookstoreapi.repository.SalesItemRepository;
 import com.bookstoreapi.bookstoreapi.repository.SalesOrderRepository;
-import com.bookstoreapi.bookstoreapi.service.PaypalService;
-import com.bookstoreapi.bookstoreapi.service.SalesOrderService;
+import com.bookstoreapi.bookstoreapi.service.SalesOrderServiceImpl;
 import com.bookstoreapi.bookstoreapi.service.StorageService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -80,41 +80,7 @@ public class HomeController {
         }
     }
 
-    @PostMapping("/checkout/paypal/create")
-    public Map<String, String> createPaypalCheckout(@RequestParam String returnUrl, @RequestBody List<Integer> bookIds){
-        SalesOrder salesOrder = salesOrderService.create(bookIds);
-        OrderResponse orderResponse = paypalService.createOrder(salesOrder, returnUrl, returnUrl);
 
-        String approveUrl = orderResponse
-                .getLinks()
-                .stream()
-                .filter(link -> link.getRel().equals("approve"))
-                .findFirst()
-                .orElseThrow(RuntimeException::new)
-                .getHref();
-
-        return Map.of("approveUrl", approveUrl);
-    }
-
-    @PostMapping("/checkout/paypal/capture")
-    public Map<String, Object> capturePaypalCheckout(@RequestParam String token){
-        OrderCaptureResponse orderCaptureResponse = paypalService.captureOrder(token);
-
-        boolean completed = orderCaptureResponse != null && orderCaptureResponse.getStatus().equals("COMPLETED");
-        int orderId = 0;
-
-        if (completed){
-            orderId = Integer.parseInt(orderCaptureResponse.getPurchaseUnits().get(0).getReferenceId());
-
-            SalesOrder salesOrder = salesOrderRepository
-                    .findById(orderId)
-                    .orElseThrow(RuntimeException::new);
-
-            salesOrder.setPaymentStatus(SalesOrder.PaymentStatus.PAID);
-            salesOrderRepository.save(salesOrder);
-        }
-        return Map.of("COMPLETED",completed, "orderId", orderId);
-    }
 
     @GetMapping(value = "/orders/{orderId}/items/{itemId}/book/download")
     Resource downloadBookFromSalesItem(
